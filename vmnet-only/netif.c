@@ -62,7 +62,9 @@ static int  VNetNetifClose(struct net_device *dev);
 static int  VNetNetifStartXmit(struct sk_buff *skb, struct net_device *dev);
 static struct net_device_stats *VNetNetifGetStats(struct net_device *dev);
 static int  VNetNetifSetMAC(struct net_device *dev, void *addr);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 42, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)) || LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
 static void VNetNetifSetMulticast(struct net_device *dev);
+#endif
 #if 0
 static void VNetNetifTxTimeout(struct net_device *dev);
 #endif
@@ -131,7 +133,9 @@ VNetNetIfSetup(struct net_device *dev)  // IN:
       .ndo_stop = VNetNetifClose,
       .ndo_get_stats = VNetNetifGetStats,
       .ndo_set_mac_address = VNetNetifSetMAC,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 2, 0)
       .ndo_set_multicast_list = VNetNetifSetMulticast,
+#endif
       /*
        * We cannot stuck... If someone will report problems under
        * low memory conditions or some such, we should enable it.
@@ -620,11 +624,12 @@ VNetNetifSetMAC(struct net_device *dev, // IN:
  *
  *----------------------------------------------------------------------
  */
-
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 42, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)) || LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
 void
 VNetNetifSetMulticast(struct net_device *dev) // IN: unused
 {
 }
+#endif
 
 
 /*

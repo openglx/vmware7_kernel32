@@ -35,6 +35,11 @@
 
 #define PCI_BDF_SLOTFUNC(bdf) PCI_DEVFN(PCI_SLOT(bdf), PCI_FUNC(bdf))
 #define PCI_BDF_BUS(bdf)      (((bdf) >> 8) & 0xff)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 42, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)) || LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
+#include <linux/pci.h>
+#define iommu_found() iommu_present(&pci_bus_type)
+#define iommu_domain_alloc() iommu_domain_alloc(&pci_bus_type)
+#endif
 
 typedef struct PassthruDevice {
    struct pci_dev *pdev;
@@ -44,7 +49,7 @@ typedef struct PassthruDevice {
 
 
 static LIST_HEAD(passthruDeviceList);
-static spinlock_t passthruDeviceListLock = SPIN_LOCK_UNLOCKED;
+static DEFINE_SPINLOCK(passthruDeviceListLock);
 static void *pciHolePage = NULL;
 
 /*

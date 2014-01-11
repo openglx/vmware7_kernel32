@@ -40,6 +40,9 @@
 #include "vnetFilterInt.h"
 #include "vnetInt.h"
 #include "vmnetInt.h"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
+#include <linux/export.h>
+#endif
 
 // VNet_FilterLogPacket.action for dropped packets
 #define VNET_FILTER_ACTION_DRP         (1)
@@ -85,7 +88,7 @@ static compat_define_mutex(filterIoctlMutex); /* serialize ioctl()s from user sp
  * callbacks can be concurrently executing on multiple threads on multiple
  * CPUs, so we should revisit locking for allowing for that in the future.
  */
-spinlock_t activeRuleLock = SPIN_LOCK_UNLOCKED;
+DEFINE_SPINLOCK(activeRuleLock);
 
 /*
  * Logging.
